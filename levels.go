@@ -690,11 +690,12 @@ func (s *levelsController) hasEarlierVersionAbove(key []byte, cd compactDef) boo
 		for _, table := range cd.top {
 			selected[table.ID()] = true
 		}
+		hash := y.Hash(y.ParseKey(key))
 		level := s.levels[0]
 		level.RLock()
 		defer level.RUnlock()
 		for _, table := range level.tables {
-			if selected[table.ID()] {
+			if selected[table.ID()] || table.DoesNotHave(hash) {
 				continue
 			}
 			it := table.NewIterator(0)
